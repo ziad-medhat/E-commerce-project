@@ -1,0 +1,343 @@
+package main.java;
+
+import java.util.Scanner;
+import javax.swing.JOptionPane;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        ElectronicProduct E = new ElectronicProduct("samsung", 1, 1, "smart phone", 599.9f);
+        ClothingProduct C = new ClothingProduct("medium", "cotton", 2, "T-Shirt", 19.99f);
+        BookProduct B = new BookProduct("o'reilly", "X publications", 3, "OOP", 39.99f);
+
+        // Taking input for customer information
+        int id = Integer.parseInt(JOptionPane.showInputDialog("Enter your ID"));
+        String name = JOptionPane.showInputDialog("Enter your name");
+        JOptionPane.showMessageDialog(null, "Hello " + name);
+        String add = JOptionPane.showInputDialog("Enter your Address");
+
+        // Creating a Customer object
+        Customer Y = new Customer(id, name, add);
+
+        // Taking input for number of products to add to cart
+        int nproduct = Integer.parseInt(JOptionPane.showInputDialog("How many products you want to add to your cart?"));
+        Cart X = new Cart();
+        X.setCustomerid(Y.getCustomerid());
+        X.setNproduct(nproduct);
+        
+        // Loop to add products to the cart
+        for (int i = 0; i < nproduct; i++) {
+            int Array = Integer.parseInt(JOptionPane.showInputDialog("Which product would you like to add?\n1.smartphone\n2.T-Shirt\n3.oop "));
+            switch (Array) {
+                case 1:
+                    X.addProduct(E);
+                    break;
+                case 2:
+                    X.addProduct(C);
+                    break;
+                case 3:
+                    X.addProduct(B);
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(null, "invalid choice!");
+            }
+        }
+        
+        // Displaying total price of products in the cart
+        JOptionPane.showMessageDialog(null, "your total is: " + X.calculatePrice() + "$.");
+        
+        // Asking user if they want to place the order
+        int n = Integer.parseInt(JOptionPane.showInputDialog(" Do you want to place the order?1.yes  2.No"));
+        X.placeOrder(n);
+        
+        // Displaying order information or cart status based on user input
+        if (n == 1) {
+            Order O = new Order(X);
+            O.printOrderInfo();
+        } else if (n == 2) {
+            JOptionPane.showMessageDialog(null, "cart is now empty");
+        } else {
+            JOptionPane.showMessageDialog(null, "invalid input");
+        }
+    }
+}
+
+class Order {
+    private int customerid;
+    private int orderid;
+    private Product[] arr;
+    private float totalprice;
+    private int nproduct;
+    static int number;
+
+    // Constructor for Order class
+    public Order(Cart c) {
+        number++;
+        this.customerid = c.getCustomerid();
+        this.orderid = number;
+        this.arr = c.getArr();
+        this.totalprice = c.calculatePrice();
+    }
+
+    // Method to print order information
+    public void printOrderInfo() {
+        System.out.println("Here's your order's summary: ");
+        System.out.println("Order id: " + orderid);
+        System.out.println("Customer id: " + customerid);
+        System.out.println("Ordered products: ");
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] != null) {
+                System.out.println("Name: " + arr[i].getName());
+                System.out.println("Price: " + arr[i].getPrice());
+            }
+        }
+        System.out.println("Total price: " + totalprice);
+    }
+}
+
+class Cart {
+    private int customerid;
+    private int nproduct;
+    protected Product[] arr;
+
+    // Getter for the array of products in the cart
+    public Product[] getArr() {
+        return arr;
+    }
+
+    // Setter for the array of products in the cart
+    public void setArr(Product[] arr) {
+        this.arr = new Product[nproduct];
+    }
+
+    // Getter for customer ID
+    public int getCustomerid() {
+        return customerid;
+    }
+
+    // Setter for customer ID
+    public void setCustomerid(int customerid) {
+        this.customerid = customerid;
+    }
+
+    // Getter for number of products in the cart
+    public int getNproduct() {
+        return nproduct;
+    }
+
+    // Setter for number of products in the cart
+    public void setNproduct(int nproduct) {
+        this.nproduct = Math.abs(nproduct);
+        arr = new Product[this.nproduct];
+    }
+
+    // Method to add a product to the cart
+    public void addProduct(Product product) {
+        for (int i = 0; i < nproduct; i++) {
+            if (arr[i] == null) {
+                arr[i] = product;
+                return;
+            }
+        }
+        JOptionPane.showMessageDialog(null, "The cart is full, cannot add more products.");
+    }
+
+    // Method to remove a product from the cart
+    public void removeProduct(int index) {
+        if (index >= 0 && index < nproduct) {
+            arr[index] = null;
+        } else {
+            JOptionPane.showMessageDialog(null, "Invalid index, cannot remove product.");
+        }
+    }
+
+    // Method to calculate the total price of products in the cart
+    public float calculatePrice() {
+        float total = 0;
+        for (int i = 0; i < nproduct; i++) {
+            if (arr[i] != null) {
+                total += arr[i].getPrice();
+            }
+        }
+        return total;
+    }
+
+    // Method to place an order based on user input
+    public void placeOrder(int choice) {
+        switch (choice) {
+            case 1:
+                System.out.println("Order placed successfully.");
+                break;
+            case 2:
+                for (int i = 0; i < arr.length; i++) {
+                    arr[i] = null;
+                }
+                System.out.println("Cart is now empty.");
+                break;
+            default:
+                System.out.println("Invalid input.");
+        }
+    }
+}
+
+class Product {
+    protected int productid;
+    protected String name;
+    protected float price;
+
+    // Getters and setters for product attributes
+    public int getProductid() {
+        return productid;
+    }
+
+    public void setProductid(int productid) {
+        this.productid = Math.abs(productid);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public float getPrice() {
+        return price;
+    }
+
+    public void setPrice(float price) {
+        this.price = Math.abs(price);
+    }
+}
+
+class ElectronicProduct extends Product {
+    protected String brand;
+    protected int warrantyperiod;
+
+    // Constructor for ElectronicProduct class
+    public ElectronicProduct(String brand, int productId, int warrantyPeriod, String name, float price) {
+        this.brand = brand;
+        this.setProductid(productId);
+        this.setWarrantyperiod(warrantyPeriod);
+        this.setName(name);
+        this.setPrice(price);
+    }
+
+    // Getters and setters for electronic product attributes
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public int getWarrantyperiod() {
+        return warrantyperiod;
+    }
+
+    public void setWarrantyperiod(int warrantyperiod) {
+        this.warrantyperiod = Math.abs(warrantyperiod);
+    }
+}
+
+class ClothingProduct extends Product {
+    protected String size;
+    protected String fabric;
+
+    // Constructor for ClothingProduct class
+    public ClothingProduct(String size, String fabric, int productId, String name, float price) {
+        this.size = size;
+        this.fabric = fabric;
+        this.setProductid(productId);
+        this.setName(name);
+        this.setPrice(price);
+    }
+
+    // Getters and setters for clothing product attributes
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public String getFabric() {
+        return fabric;
+    }
+
+    public void setFabric(String fabric) {
+        this.fabric = fabric;
+    }
+}
+
+class BookProduct extends Product {
+    protected String author;
+    protected String publisher;
+
+    // Constructor for BookProduct class
+    public BookProduct(String author, String publisher, int productId, String name, float price) {
+        this.author = author;
+        this.publisher = publisher;
+        this.setProductid(productId);
+        this.setName(name);
+        this.setPrice(price);
+    }
+
+    // Getters and setters for book product attributes
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+}
+
+class Customer {
+    private int customerid;
+    private String name;
+    private String address;
+
+    // Constructor for Customer class
+    public Customer(int id, String name, String add) {
+        this.setCustomerid(id);
+        this.setName(name);
+        this.setAddress(add);
+    }
+
+    // Getters and setters for customer attributes
+    public int getCustomerid() {
+        return customerid;
+    }
+
+    public void setCustomerid(int customerid) {
+        this.customerid = Math.abs(customerid);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+}
